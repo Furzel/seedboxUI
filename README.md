@@ -11,21 +11,21 @@ To run the server :
 - UI should be available at localhost:8000
 
 = TODO BACKEND =
-[ ] add route to stop / resume torrent 
-[ ] add route to remove torrent
-[ ] refactor backend code ( torrent creation )
-[ ] add file related routes ( download, list files )
-[ ] Zip and download feature for multi file torrents
-[ ] In memory mockup of redis for test purpose 
+- [ ] add route to stop / resume torrent 
+- [ ] add route to remove torrent
+- [ ] refactor backend code ( torrent creation )
+- [ ] add file related routes ( download, list files )
+- [ ] Zip and download feature for multi file torrents
+- [ ] In memory mockup of redis for test purpose 
 
 
 = TODO FRONTEND = 
-[ ] branch actions
-[ ] No torrent state on the UI 
-[ ] Create file explorer page 
-[ ] Search feature for the client
-[ ] Fix torrent names wrapping[ ] Display error on the client
+- [ ] branch actions
+- [ ] No torrent state on the UI 
+- [ ] Create file explorer page 
+- [ ] Search feature for the client
+- [ ] Fix torrent names wrapping[ ] Display error on the client
 
 = WORKING = 
-[X] display torrent list
-[X] add a new torrent by URL
+- [X] display torrent list
+- [X] add a new torrent by URL
