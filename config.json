@@ -1,0 +1,6 @@
+{
+  "redis_driver": "redis",
+
+  "tmp_path": "C:\\test\\tmp",
+  "download_path": "C:\\test\\dl"
+}

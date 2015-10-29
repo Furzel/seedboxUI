@@ -1,0 +1,283 @@
+/*
+ ## COLORS ##
+  http://paletton.com/#uid=23p0u0krl6Ojfekn9aswk3HKY1j
+
+  header background #061B22
+  header borders #010E12
+  header shadow #000506
+
+  title #FFF
+
+  input hover background #1E3D47
+  input background #102B34
+  input text #FFF
+
+  button background #010E12
+  button hover background #000506
+  button shadow #000506
+  button text #FFF
+
+  array background odd #1E3D47
+  array background even #1E3D47
+
+*/
+
+body {
+  margin: 0px;
+
+  background-color: #1E3D47;
+
+  font-family: Helvetica;
+}
+
+a {
+  color: #72512D;
+}
+
+a:hover {
+  color: #533617;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 160px;
+  width: 100%;
+}
+
+.torrentList {
+  margin-top: 160px;
+  width: 100%;
+}
+
+.centerWrapper {
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.header .centerWrapper {
+  box-shadow: 0px 4px 5px #000506;
+  border: 1px solid #010E12;
+
+  background-color: #061B22;
+}
+
+.torrentList .centerWrapper {
+  box-shadow: 0px 2px 5px;
+}
+
+.oldheaderControls {
+  height: 60px;
+  position: relative;
+
+  background-color: #061B22;
+
+  border-bottom: 1px solid #61981C;
+  border-right: 1px solid #61981C;
+
+  box-shadow: 2px 2px 1px #AAA;
+}
+
+.headerControls {
+  height: 60px;
+  position: relative;
+
+  border-bottom: 1px inset #010E12;
+}
+
+.title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 60px;
+}
+
+.title h1 {
+  color: #FFF;
+  margin: 0px;
+  padding-top: 13.5px;
+  padding-bottom: 16.5px;
+  padding-left: 10px;
+  padding-right: 10px;
+
+  font-size: 2em;
+}
+
+.addTorrentForm {
+  width: 60%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 60px;
+}
+
+input {
+  background-color: #102B34;
+  border: 1px inset #010E12;
+
+  font-size: 1.2em;
+}
+
+input:hover {
+  background-color: #1E3D47;
+}
+
+input:focus {
+  outline: 0;
+  background-color: #1E3D47;
+}
+
+::-webkit-input-placeholder {
+  padding-left: 5px;
+  color: #FFF;
+  font-size: 1.2em;
+}
+
+.addTorrentForm input {
+  margin-top: 12.5px;
+  margin-right: 10px;
+  margin-left: 5%;
+
+  width: 65%;
+  height: 35px;
+}
+
+.addTorrentForm button {
+  margin-top: 12.5px;
+
+  width: 25%;
+  height: 35px;
+
+  background-color: #010E12;
+  border: 0px;
+  box-shadow: 2px 2px 1px #000506;
+  color: #FFF;
+}
+
+.addTorrentForm button:hover {
+  background-color: #000506;
+  cursor: pointer;
+}
+
+.torrentToolbar {
+  height: 60px;
+  width: 100%;
+
+  border-bottom: 1px inset #010E12;
+}
+
+.torrentToolbar input {
+  margin-top: 10px;
+  margin-left: 5%;
+  margin-right: 5%;
+
+  height: 35px;
+  width: 90%;
+}
+
+.torrentToolbar .searchIcon {
+  float: right;
+  margin-right: 44px;
+  margin-top: -28px;
+  position: relative;
+  z-index: 2;
+
+  color: #FFF;
+}
+
+.listHeader {
+  height: 40px;
+
+  display: -webkit-flex;
+    display: flex;
+
+  color: #FFF;
+  font-size: 1.2em;
+}
+
+.row {
+  height: 40px;
+
+  display: -webkit-flex;
+    display: flex;
+
+  border: 1px ridge #102B34;
+}
+
+.rowSeparator {
+  position: absolute;
+
+  width: 100%;
+  height: 1px;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-color: #102B34;
+}
+
+.torrentList div .row:nth-child(odd) {
+  background-color: #1E3D47;
+}
+
+.torrentList div .row:nth-child(even) {
+  background-color: #1E3D47;
+}
+
+.col1 {
+  -webkit-flex: 60;
+          flex: 60;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-overflow:ellipsis
+  overflow: hidden;
+
+  max-width: 60%;
+}
+
+.col2 {
+  -webkit-flex: 10;
+          flex: 10;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  max-width: 10%;
+}
+
+.col3 {
+  -webkit-flex: 15;
+          flex: 15;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  max-width: 15%;
+}
+
+.col4 {
+  -webkit-flex: 15;
+          flex: 15;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  max-width: 15%;
+}
+
+.torrentActions a span {
+  letter-spacing: 10px;
+}
+
+a span.fa {
+  text-shadow: 2px 2px 5px #000506;
+}

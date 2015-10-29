@@ -1,0 +1,22 @@
+{
+  "name": "seedbox-ui",
+  "version": "1.0.0",
+  "description": "Torrent client with web UI for seedboxes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^1.4.2",
+    "good": "^6.4.0",
+    "good-console": "^5.1.0",
+    "hapi": "^10.4.0",
+    "inert": "^3.1.0",
+    "joi": "^6.9.0",
+    "lodash": "^3.10.1",
+    "redis": "^2.1.0",
+    "torrent-stream": "^1.0.0",
+  }
+}
