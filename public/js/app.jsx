@@ -36,7 +36,7 @@ var Page = React.createClass({
 
   componentDidMount: function () {
     this.loadTorrentList();
-    setInterval(this.loadTorrentList, 2000);
+    setInterval(this.loadTorrentList, 200000000);
   },
 
   render: function () {
@@ -101,7 +101,7 @@ var TorrentList = React.createClass({
   render: function () {
     var torrentNodes = this.props.data.map(function (torrent) {
       return (
-        <Torrent name={torrent.name} status={torrent.status} progress={torrent.progress} />
+        <Torrent torrent={torrent} />
       );
     }); 
 
@@ -127,28 +127,23 @@ var TorrentToolbar = React.createClass({
 });
 
 var Torrent = React.createClass({
-  getPossibleActions: function () {
-    var actions = ['remove'];
+  getInitialState: function () {
+    return {
+      torrent: this.props.torrent
+    };
+  },
 
-    if (this.props.status === 'complete')
-      actions.push('download');
-
-    if (this.props.status === 'paused')
-      actions.push('start');
-    
-    if (this.props.status === 'running')
-      actions.push('stop');
-
-    return actions;
+  updateTorrent: function (torrent) {
+    this.setState({torrent: torrent});
   },
 
   render: function () {
     return (
       <div className="row">
-        <div className="col1">{this.props.name}</div>
-        <div className="col2">{this.props.status}</div>
-        <TorrentProgress progress={Math.floor(this.props.progress)}/>
-        <TorrentActions actions={this.getPossibleActions()}/>
+        <div className="col1">{this.state.torrent.name}</div>
+        <div className="col2">{this.state.torrent.status}</div>
+        <TorrentProgress progress={Math.floor(this.state.torrent.progress)}/>
+        <TorrentActions torrent={this.state.torrent} updateTorrent={this.updateTorrent}/>
       </div>
     );
   }
@@ -165,28 +160,84 @@ var TorrentProgress = React.createClass({
 });
 
 var TorrentActions = React.createClass({
+  getInitialState: function () {
+    return {
+      actions: this.getPossibleActions(this.props.torrent)
+    }
+  },
+
+  getPossibleActions: function (torrent) {
+    var actions = ['remove'];
+
+    if (torrent.status === 'complete')
+      actions.push('download');
+
+    if (torrent.status === 'paused')
+      actions.push('start');
+    
+    if (torrent.status === 'running')
+      actions.push('stop');
+
+    return actions;
+  },
+
+  pauseTorrent: function (event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: '/torrent/' + this.props.torrent.key + '/pause',
+      dataType: 'json',
+      type: 'POST',
+      data: {},
+      success: function (torrent) {
+        this.props.updateTorrent(torrent);
+      }.bind(this),
+      error: function (xhr, status, err) {
+        console.error('pauseTorrent', status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  restartTorrent: function (event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: '/torrent/' + this.props.torrent.key + '/restart',
+      dataType: 'json',
+      type: 'POST',
+      data: {},
+      success: function (torrent) {
+        this.props.updateTorrent(torrent);
+      }.bind(this),
+      error: function (xhr, status, err) {
+        console.error('restartTorrent', status, err.toString());
+      }.bind(this)
+    });
+  },
+
   render: function () {
-    var actionNodes = [];
+    var actionNodes = [],
+        actions = this.getPossibleActions(this.props.torrent);
 
     // Can't loop, we need to keep the same order
-    if (this.props.actions.indexOf('remove') !== -1)
+    if (actions.indexOf('remove') !== -1)
       actionNodes.push((
         <a href="#"><span className="fa fa-trash"></span></a>
       ));
 
-    if (this.props.actions.indexOf('download') !== -1)
+    if (actions.indexOf('download') !== -1)
       actionNodes.push((
         <a href="#"><span className="fa fa-arrow-down"></span></a>
       ));
 
-    if (this.props.actions.indexOf('start') !== -1)
+    if (actions.indexOf('start') !== -1)
       actionNodes.push((
-        <a href="#"><span className="fa fa-play"></span></a>
+        <a href="#" onClick={this.restartTorrent}><span className="fa fa-play"></span></a>
       ));
 
-    if (this.props.actions.indexOf('stop') !== -1)
+    if (actions.indexOf('stop') !== -1)
       actionNodes.push((
-        <a href="#"><span className="fa fa-pause"></span></a>
+        <a href="#" onClick={this.pauseTorrent}><span className="fa fa-pause"></span></a>
       ));
 
     return (

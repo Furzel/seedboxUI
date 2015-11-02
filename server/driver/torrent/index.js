@@ -23,7 +23,7 @@ exports.init = function (done) {
     console.log('Restarting', torrents.length, 'torrents');
 
     async.eachSeries(torrents, function (torrent, done) {
-      restartTorrent(torrent.getKey(), torrent.getUrl(), done);
+      restartTorrent(torrent, done);
     }, done);
   });
 };
@@ -48,28 +48,45 @@ exports.addNewTorrent = function (url, done) {
       if (err)
         return done(err);
 
-      done(torrent);
+      done(null, torrent);
     });
   });
 };
 
-var restartTorrent = exports.restartTorrent = function (key, url, done) {
-  _maybeDestroyOldEngine(key, function (err) {
+var restartTorrent = exports.restartTorrent = function (torrent, done) {
+  _destroyEngine(torrent.getKey(), function (err) {
     if (err)
       return done(err);
 
-    var engine = torrentStream(url, torrentConfig);
+    var engine = torrentStream(torrent.getUrl(), torrentConfig);
+    torrent.setPaused(false);
 
-    _startEngine(engine, done);
+    _startEngine(engine, function (err) {
+      if (err)
+        return done({message: 'Could not start engine for torrent ' + torrent.getKey(), source: 'torrent_driver', reason:'driver_error'});
+    
+      torrent.save(done);
+    });
   });
 };
 
-exports.fetchTorrent = function (key, done) {
+exports.pauseTorrent = function (torrent, done) {
+  torrent.setPaused(true);
+
+  _destroyEngine(torrent.getKey(), function (err) {
+    if (err)
+      return done({message: 'Could not destroy engine for torrent ' + torrent.getKey(), source:'torrent_driver', reason:'driver_error'});
+
+    torrent.save(done);
+  });
+};
+
+var fetchTorrent = exports.fetchTorrent = function (key, done) {
   redisDb.getTorrent(key, function (err, data) {
     if (err) 
       return done(err);
 
-    done(Torrent.create(data));
+    done(null, Torrent.create(data));
   });
 }; 
 
@@ -87,6 +104,7 @@ var listAllTorrents = exports.listAllTorrents = function (done) {
 };
 
 exports.getTorrentStatus = function (key, paused) {
+  console.log(key, paused);
   if (paused)
     return 'paused';
 
@@ -147,11 +165,15 @@ function _startEngine (engine, done) {
   });
 }
 
-function _maybeDestroyOldEngine (key, done) {
+function _destroyEngine (key, done) {
   if (!runningEngines[key])
     return done();
 
-  runningEngines[key].destroy(done);
+  runningEngines[key].destroy(function (err) {
+    runningEngines[key] = null;
+
+    done(err);
+  });
 }
 
 function _getEngine (key) {

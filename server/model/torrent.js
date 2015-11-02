@@ -2,7 +2,7 @@ var redisDb = require('../driver/redis'),
     _ = require('lodash'),
     torrentDriver = require('../driver/torrent');
 
-module.exports.create = function (attributes) {
+exports.create = function (attributes) {
   var key = attributes.key,
       url = attributes.url,
       name = attributes.name || null,

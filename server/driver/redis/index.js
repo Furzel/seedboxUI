@@ -8,7 +8,7 @@ exports.getTorrentList = function (done) {
 };
 
 exports.saveTorrent = function (torrentData, done) {
-  driver.saveData(torrentData, 'torrent-' + torrent.key, done);
+  driver.saveData(torrentData, 'torrent-' + torrentData.key, done);
 };
 
 exports.getTorrent = function (key, done) {
