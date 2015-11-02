@@ -1,6 +1,7 @@
 var Torrent = require('../../model/torrent'),
     config = require('../../../config'),
     _ = require('lodash'),
+    redisDb = require('../redis'),
     torrentStream = require('torrent-stream'),
     async = require('async');
 
@@ -15,13 +16,14 @@ var torrentConfig = {
 };
 
 exports.init = function (done) {
-  Torrent.listAll(function (err, torrents) {
+  listAllTorrents(function (err, torrents) {
     if (err)
       return done(err);
 
     console.log('Restarting', torrents.length, 'torrents');
+
     async.eachSeries(torrents, function (torrent, done) {
-      restartTorrent(torrent, done);
+      restartTorrent(torrent.getKey(), torrent.getUrl(), done);
     }, done);
   });
 };
@@ -32,50 +34,86 @@ exports.addNewTorrent = function (url, done) {
   var engine = torrentStream(url, torrentConfig);
 
   _startEngine(engine, function (err) {
-    done(err, engine);
-  });
-};
-
-var restartTorrent = exports.restartTorrent = function (torrent, done) {
-  console.log('restarting torrent', torrent.name);
-  _maybeDestroyOldEngine(torrent.key, function (err) {
     if (err)
       return done(err);
 
-    var engine = torrentStream(torrent.url, torrentConfig);
+    var torrent = Torrent.create({
+      key: engine.torrent.infoHash,
+      url: url,
+      name: engine.torrent.name,
+      files: _parseEngineFiles(engine.torrent.files)
+    });
+
+    torrent.save(function (err) {
+      if (err)
+        return done(err);
+
+      done(torrent);
+    });
+  });
+};
+
+var restartTorrent = exports.restartTorrent = function (key, url, done) {
+  _maybeDestroyOldEngine(key, function (err) {
+    if (err)
+      return done(err);
+
+    var engine = torrentStream(url, torrentConfig);
 
     _startEngine(engine, done);
   });
 };
 
-exports.getTorrentStatus = function (torrent) {
-  if (torrent.paused)
+exports.fetchTorrent = function (key, done) {
+  redisDb.getTorrent(key, function (err, data) {
+    if (err) 
+      return done(err);
+
+    done(Torrent.create(data));
+  });
+}; 
+
+var listAllTorrents = exports.listAllTorrents = function (done) {
+  redisDb.getTorrentList(function (err, dataList) {
+    if (err)
+      return done(err);
+
+    var torrentList = _.map(dataList, function (torrentData) {
+      return Torrent.create(torrentData);
+    });
+
+    done(null, torrentList);
+  });
+};
+
+exports.getTorrentStatus = function (key, paused) {
+  if (paused)
     return 'paused';
 
-  if (!torrentProgress[torrent.key] || torrentProgress[torrent.key] === 0)
+  if (!torrentProgress[key] || torrentProgress[key] === 0)
     return 'added';
 
-  var engine = _getEngine(torrent);
+  var engine = _getEngine(key);
 
   if (!engine || !engine.torrent || !engine.torrent.pieces)
     return 'unknown';
 
-  if (torrentProgress[torrent.key] === engine.torrent.pieces.length)
+  if (torrentProgress[key] === engine.torrent.pieces.length)
     return 'complete';
 
   return 'running';
 };
 
-exports.getTorrentProgress = function (torrent) {
-  var engine = _getEngine(torrent);
+exports.getTorrentProgress = function (key) {
+  var engine = _getEngine(key);
 
-  if (!torrentProgress[torrent.key])
+  if (!torrentProgress[key])
     return 0;
 
   if (!engine || !engine.torrent || !engine.torrent.pieces)
     return null;
 
-  return torrentProgress[torrent.key] / engine.torrent.pieces.length * 100;
+  return torrentProgress[key] / engine.torrent.pieces.length * 100;
 };
 
 function _startEngine (engine, done) {
@@ -116,9 +154,19 @@ function _maybeDestroyOldEngine (key, done) {
   runningEngines[key].destroy(done);
 }
 
-function _getEngine (torrent) {
-  if (!runningEngines[torrent.key])
+function _getEngine (key) {
+  if (!runningEngines[key])
     return null;
 
-  return runningEngines[torrent.key];
+  return runningEngines[key];
+}
+
+function _parseEngineFiles(files) {
+  return _.map(files, function (file) {
+    return {
+      name: file.name,
+      filePath: file.path,
+      length: file.length
+    };
+  });
 }

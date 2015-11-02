@@ -1,6 +1,7 @@
 var Hapi = require('hapi'),
     Joi = require('joi'),
     _ = require('lodash'),
+    torrentDriver = require('../driver/torrent'),
     Torrent = require('../model/torrent');
 
 exports.mount = function (server) {
@@ -8,13 +9,11 @@ exports.mount = function (server) {
     method: 'POST',
     path: '/torrent/add',
     handler: function (request, reply) {
-      Torrent.addNew(request.payload.torrent_url, function (err, torrent) {
-        console.log(err, torrent);
-        
+      torrentDriver.addNew(request.payload.torrent_url, function (err, torrent) {
         if (err)
           return reply(new Error(err.message));
 
-        reply(torrent);
+        reply(torrent.toJSON());
       });
     },
     config: {
@@ -30,11 +29,11 @@ exports.mount = function (server) {
     method: 'GET',
     path: '/torrent/all',
     handler: function (request, reply) {
-      Torrent.listAll(function (err, torrents) {
+      torrentDriver.listAllTorrents(function (err, torrents) {
         if (err)
           return reply(new Error(err.message));
 
-        reply(_.invoke(torrents, Torrent.prototype.toJSON));
+        reply(_.invoke(torrents, 'toJSON'));
       });
     }
   });

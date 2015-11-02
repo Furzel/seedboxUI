@@ -7,8 +7,8 @@ exports.getTorrentList = function (done) {
   driver.getList('torrent', done);
 };
 
-exports.saveTorrent = function (torrent, done) {
-  driver.saveData(torrent.toDatabase(), 'torrent-' + torrent.key, done);
+exports.saveTorrent = function (torrentData, done) {
+  driver.saveData(torrentData, 'torrent-' + torrent.key, done);
 };
 
 exports.getTorrent = function (key, done) {
