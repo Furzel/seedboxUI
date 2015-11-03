@@ -23,6 +23,9 @@ exports.init = function (done) {
     console.log('Restarting', torrents.length, 'torrents');
 
     async.eachSeries(torrents, function (torrent, done) {
+      if (torrent.isPaused())
+        return done();
+      
       restartTorrent(torrent, done);
     }, done);
   });

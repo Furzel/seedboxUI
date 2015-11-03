@@ -43,6 +43,10 @@ exports.create = function (attributes) {
 
     setPaused: function (isPaused) {
       paused = isPaused;
+    },
+
+    isPaused: function () {
+      return paused;
     }
   };
 };
