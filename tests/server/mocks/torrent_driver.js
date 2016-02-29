@@ -15,3 +15,14 @@ exports.addNewTorrent = function (url, done) {
   });
 };
 
+exports.getTorrentStatus = function (key, paused) {
+  if (paused)
+    return 'paused';
+
+  return 'running';
+};
+
+exports.getTorrentProgress = function (key) {
+  return 50;
+};
+

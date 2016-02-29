@@ -1,6 +1,5 @@
 var Hapi = require('hapi'),
     Good = require('good'),
-    Path = require('path'),
     routes = require('./routes'),
     GoodConsole = require('good-console');
 
@@ -39,4 +38,6 @@ exports.start = function () {
       console.log('Server started on port 8000');
     });
   });
+
+  return server;
 };
