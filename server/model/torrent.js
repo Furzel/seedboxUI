@@ -7,17 +7,30 @@ var create = exports.create = function (attributes) {
       url = attributes.url,
       name = attributes.name || null,
       files = attributes.files || [],
-      paused = attributes.paused || false;
+      paused = attributes.paused || false,
+      nbParts = attributes.nb_parts,
+      downloadedParts = attributes.downloaded_parts || 0;
 
   var toDatabase = function () {
     return {
       key: key,
       name: name,
       url: url,
-      files: files,
-      paused: paused
+      paused: paused,
+      nb_parts: nbParts,
+      downloaded_parts: downloadedParts,
+      files: files
     };
   };
+
+  // When restarting a torrent or during a download we get notified
+  // for downloaded parts, this can get quite bursty and we do not want
+  // to fire a db update for every part, we only do the save every
+  // 500 ms, even if the save is async we want this function to be
+  // synchronous since it will most likely do nothing
+  var throttledSave = _.throttle(function () {
+    redisDb.saveTorrent(toDatabase(), function () {});
+  }, 500, {trailing: true});
 
   return {
     save: function (done) {
@@ -35,8 +48,8 @@ var create = exports.create = function (attributes) {
       return {
         key: key,
         name: name,
-        status: torrentDriver.getTorrentStatus(key, paused),
-        progress: torrentDriver.getTorrentProgress(key)
+        status: this.getStatus(),
+        progress: this.getProgress()
       };
     },
 
@@ -50,6 +63,27 @@ var create = exports.create = function (attributes) {
 
     getName: function () {
       return name;
+    },
+
+    getProgress: function () {
+      return downloadedParts / nbParts * 100;
+    },
+
+    resetProgress: function () {
+      downloadedParts = 0;
+    },
+
+    getStatus: function () {
+      if (paused)
+        return 'paused';
+
+      if (downloadedParts === 0)
+        return 'added';
+
+      if (downloadedParts === nbParts)
+        return 'complete';
+
+      return 'running';
     },
 
     pause: function (done) {
@@ -80,6 +114,16 @@ var create = exports.create = function (attributes) {
 
     isPaused: function () {
       return paused;
+    },
+
+    partDownloaded: function () {
+      downloadedParts++;
+
+      if (downloadedParts === nbParts)
+        console.log('Torrent', name, 'completed !');
+        // TODO: attach event handler
+
+      throttledSave();
     }
   };
 };
@@ -96,13 +140,15 @@ exports.fetch = function (key, done) {
 };
 
 exports.createFromUrl = function (url, done) {
-  torrentDriver.addNewTorrent(url, function (err, data) {
-    if (err)
-      return done(err);
+  torrentDriver.createTorrent(url, function (err, torrentData) {
+    var torrent = create(torrentData);
 
-    var torrent = create(data);
+    torrentDriver.restartTorrent(torrent, function (err) {
+      if (err)
+        return done(err);
 
-    torrent.save(done);
+      torrent.save(done);
+    });
   });
 };
 

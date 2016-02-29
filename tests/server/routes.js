@@ -35,7 +35,7 @@ describe('Routes', function () {
       server.inject(options, function (response) {
         response.statusCode.should.equal(200);
         response.result.key.should.equal('12346');
-        response.result.status.should.equal('running');
+        response.result.status.should.equal('added');
 
         done();
       });
@@ -63,7 +63,7 @@ describe('Routes', function () {
 
       server.inject(options, function (response) {
         response.statusCode.should.equal(200);
-        response.result.status.should.equal('running');
+        response.result.status.should.equal('added');
 
         done();
       });

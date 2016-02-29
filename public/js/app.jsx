@@ -36,7 +36,7 @@ var Page = React.createClass({
 
   componentDidMount: function () {
     this.loadTorrentList();
-    setInterval(this.loadTorrentList, 200000000);
+    setInterval(this.loadTorrentList, 100000);
   },
 
   render: function () {

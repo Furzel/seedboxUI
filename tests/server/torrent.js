@@ -97,6 +97,25 @@ describe('Torrent', function () {
     });
   });
 
+  it('should have correct torrent status', function () {
+    var torrent = Torrent.create({
+      key: '123',
+      url: 'bli',
+      name: 'blo',
+      nb_parts: 2
+    });
+
+    torrent.getStatus().should.equal('added');
+
+    torrent.partDownloaded();
+
+    torrent.getStatus().should.equal('running');
+
+    torrent.partDownloaded();
+
+    torrent.getStatus().should.equal('complete');
+  });
+
   after(function () {
     mockery.disable();
   });

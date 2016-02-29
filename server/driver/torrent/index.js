@@ -4,8 +4,7 @@ var Torrent = require('../../model/torrent'),
     torrentStream = require('torrent-stream'),
     async = require('async');
 
-var runningEngines = {},
-    torrentProgress = {};
+var runningEngines = {};
 
 var torrentConfig = {
   connections: config.max_connections || 100,
@@ -30,20 +29,18 @@ exports.init = function (done) {
   });
 };
 
-exports.addNewTorrent = function (url, done) {
+exports.createTorrent = function (url, done) {
   // TODO check if the torrent already exist (warning to user)
 
   var engine = torrentStream(url, torrentConfig);
 
-  _startEngine(engine, function (err) {
-    if (err)
-      return done(err);
-
+  engine.on('ready', function () {
     done(null, {
       key: engine.torrent.infoHash,
       url: url,
       name: engine.torrent.name,
-      files: _parseEngineFiles(engine.torrent.files)
+      files: _parseEngineFiles(engine.torrent.files),
+      nb_parts: engine.torrent.pieces.length
     });
   });
 };
@@ -55,7 +52,9 @@ var restartTorrent = exports.restartTorrent = function (torrent, done) {
 
     var engine = torrentStream(torrent.getUrl(), torrentConfig);
 
-    _startEngine(engine, function (err) {
+    torrent.resetProgress();
+
+    _startEngine(engine, torrent, function (err) {
       if (!err)
         return done(); 
 
@@ -73,41 +72,8 @@ exports.pauseTorrent = function (torrent, done) {
   });
 };
 
-exports.getTorrentStatus = function (key, paused) {
-  console.log(key, paused);
-  if (paused)
-    return 'paused';
-
-  if (!torrentProgress[key] || torrentProgress[key] === 0)
-    return 'added';
-
-  var engine = _getEngine(key);
-
-  if (!engine || !engine.torrent || !engine.torrent.pieces)
-    return 'unknown';
-
-  if (torrentProgress[key] === engine.torrent.pieces.length)
-    return 'complete';
-
-  return 'running';
-};
-
-exports.getTorrentProgress = function (key) {
-  if (!torrentProgress[key])
-    return 0;
-
-  var engine = _getEngine(key);
-
-  if (!engine || !engine.torrent || !engine.torrent.pieces)
-    return null;
-
-  return torrentProgress[key] / engine.torrent.pieces.length * 100;
-};
-
-function _startEngine (engine, done) {
+function _startEngine (engine, torrent, done) {
   var torrentKey = engine.infoHash;
-
-  torrentProgress[torrentKey] = 0;
 
   engine.on('ready', function () {
     // save engine reference
@@ -123,18 +89,14 @@ function _startEngine (engine, done) {
   });
 
   engine.on('verify', function () {
-    torrentProgress[torrentKey]++;
-
-    if (torrentProgress[torrentKey] === engine.torrent.pieces.length)
-      console.log('Torrent', engine.torrent.name, 'completed !');
-      // TODO: attach torrent complete handler
+    torrent.partDownloaded();
   });
 
   engine.on('upload', function () {
     // TODO: compute up/down ratio
   });
 }
-
+ 
 function _destroyEngine (key, done) {
   if (!runningEngines[key])
     return done();
