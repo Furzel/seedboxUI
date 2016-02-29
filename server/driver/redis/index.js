@@ -1,6 +1,5 @@
-var config = require('../../../config'),
+var config = require('../../config'),
     driver = require('./' + config.redis_driver);
-
 // Torrent manipulation
 
 exports.getTorrentList = function (done) {

@@ -1,7 +1,6 @@
 var Torrent = require('../../model/torrent'),
-    config = require('../../../config'),
+    config = require('../../config'),
     _ = require('lodash'),
-    redisDb = require('../redis'),
     torrentStream = require('torrent-stream'),
     async = require('async');
 
@@ -16,7 +15,7 @@ var torrentConfig = {
 };
 
 exports.init = function (done) {
-  listAllTorrents(function (err, torrents) {
+  Torrent.listAll(function (err, torrents) {
     if (err)
       return done(err);
 
@@ -40,18 +39,11 @@ exports.addNewTorrent = function (url, done) {
     if (err)
       return done(err);
 
-    var torrent = Torrent.create({
+    done(null, {
       key: engine.torrent.infoHash,
       url: url,
       name: engine.torrent.name,
       files: _parseEngineFiles(engine.torrent.files)
-    });
-
-    torrent.save(function (err) {
-      if (err)
-        return done(err);
-
-      done(null, torrent);
     });
   });
 };
@@ -62,47 +54,22 @@ var restartTorrent = exports.restartTorrent = function (torrent, done) {
       return done(err);
 
     var engine = torrentStream(torrent.getUrl(), torrentConfig);
-    torrent.setPaused(false);
 
     _startEngine(engine, function (err) {
-      if (err)
-        return done({message: 'Could not start engine for torrent ' + torrent.getKey(), source: 'torrent_driver', reason:'driver_error'});
-    
-      torrent.save(done);
+      if (!err)
+        return done(); 
+
+      done({message: 'Could not start engine for torrent ' + torrent.getKey(), source: 'torrent_driver', reason:'driver_error'});
     });
   });
 };
 
 exports.pauseTorrent = function (torrent, done) {
-  torrent.setPaused(true);
-
   _destroyEngine(torrent.getKey(), function (err) {
-    if (err)
-      return done({message: 'Could not destroy engine for torrent ' + torrent.getKey(), source:'torrent_driver', reason:'driver_error'});
+    if (!err)
+      return done();
 
-    torrent.save(done);
-  });
-};
-
-var fetchTorrent = exports.fetchTorrent = function (key, done) {
-  redisDb.getTorrent(key, function (err, data) {
-    if (err) 
-      return done(err);
-
-    done(null, Torrent.create(data));
-  });
-}; 
-
-var listAllTorrents = exports.listAllTorrents = function (done) {
-  redisDb.getTorrentList(function (err, dataList) {
-    if (err)
-      return done(err);
-
-    var torrentList = _.map(dataList, function (torrentData) {
-      return Torrent.create(torrentData);
-    });
-
-    done(null, torrentList);
+    done({message: 'Could not destroy engine for torrent ' + torrent.getKey(), source:'torrent_driver', reason:'driver_error'});
   });
 };
 
@@ -126,10 +93,10 @@ exports.getTorrentStatus = function (key, paused) {
 };
 
 exports.getTorrentProgress = function (key) {
-  var engine = _getEngine(key);
-
   if (!torrentProgress[key])
     return 0;
+
+  var engine = _getEngine(key);
 
   if (!engine || !engine.torrent || !engine.torrent.pieces)
     return null;

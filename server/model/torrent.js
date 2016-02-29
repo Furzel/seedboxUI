@@ -2,7 +2,7 @@ var redisDb = require('../driver/redis'),
     _ = require('lodash'),
     torrentDriver = require('../driver/torrent');
 
-exports.create = function (attributes) {
+var create = exports.create = function (attributes) {
   var key = attributes.key,
       url = attributes.url,
       name = attributes.name || null,
@@ -21,7 +21,14 @@ exports.create = function (attributes) {
 
   return {
     save: function (done) {
-      redisDb.saveTorrent(toDatabase(), done);
+      var self = this;
+
+      redisDb.saveTorrent(toDatabase(), function (err) {
+        if (err)
+          return done(err);
+
+        done(null, self);
+      });
     },
 
     toJSON: function () {
@@ -41,12 +48,73 @@ exports.create = function (attributes) {
       return url;
     },
 
-    setPaused: function (isPaused) {
-      paused = isPaused;
+    getName: function () {
+      return name;
+    },
+
+    pause: function (done) {
+      var self = this;
+
+      torrentDriver.pauseTorrent(self, function (err) {
+        if (err)
+          return done(err);
+
+        paused = true;
+
+        self.save(done);
+      });
+    },
+
+    restart: function (done) {
+      var self = this;
+
+      torrentDriver.restartTorrent(self, function (err) {
+        if (err)
+          return done(err);
+
+        paused = false;
+
+        self.save(done);
+      });
     },
 
     isPaused: function () {
       return paused;
     }
   };
+};
+
+exports.fetch = function (key, done) {
+  redisDb.getTorrent(key, function (err, data) {
+    if (err) 
+      return done(err);
+
+    var torrent = create(data);
+
+    done(null, torrent);
+  });
+};
+
+exports.createFromUrl = function (url, done) {
+  torrentDriver.addNewTorrent(url, function (err, data) {
+    if (err)
+      return done(err);
+
+    var torrent = create(data);
+
+    torrent.save(done);
+  });
+};
+
+exports.listAll = function (done) {
+  redisDb.getTorrentList(function (err, dataList) {
+    if (err)
+      return done(err);
+
+    var torrentList = _.map(dataList, function (torrentData) {
+      return create(torrentData);
+    });
+
+    done(null, torrentList);
+  });
 };

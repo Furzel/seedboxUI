@@ -1,0 +1,5 @@
+{
+  "node": true,
+  "eqeqeq": true,
+  "predef": ["describe", "it", "before", "after"]
+}
