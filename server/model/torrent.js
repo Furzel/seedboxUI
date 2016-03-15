@@ -1,15 +1,23 @@
 var redisDb = require('../driver/redis'),
     _ = require('lodash'),
+    TorrentFile = require('./torrent_file'),
     torrentDriver = require('../driver/torrent');
 
 var create = exports.create = function (attributes) {
   var key = attributes.key,
       url = attributes.url,
       name = attributes.name || null,
-      files = attributes.files || [],
       paused = attributes.paused || false,
       nbParts = attributes.nb_parts,
       downloadedParts = attributes.downloaded_parts || 0;
+
+  var files = [];
+
+  if (attributes.files) {
+    files = _.map(attributes.files, function (file) {
+      return TorrentFile.create(file);
+    });
+  }
 
   var toDatabase = function () {
     return {
@@ -19,7 +27,7 @@ var create = exports.create = function (attributes) {
       paused: paused,
       nb_parts: nbParts,
       downloaded_parts: downloadedParts,
-      files: files
+      files: _.invoke(files, 'toDatabase')
     };
   };
 
@@ -84,6 +92,17 @@ var create = exports.create = function (attributes) {
         return 'complete';
 
       return 'running';
+    },
+
+    getFileById: function (id) {
+      debugger;
+      return _.find(files, function (file) {
+        return file.getId() === id;
+      });
+    },
+
+    getFiles: function () {
+      return files;
     },
 
     pause: function (done) {

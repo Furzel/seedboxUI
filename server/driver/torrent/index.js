@@ -108,18 +108,15 @@ function _destroyEngine (key, done) {
   });
 }
 
-function _getEngine (key) {
-  if (!runningEngines[key])
-    return null;
-
-  return runningEngines[key];
-}
-
 function _parseEngineFiles(files) {
+  var fileCount = 0;
   return _.map(files, function (file) {
+    fileCount++;
+
     return {
+      id: fileCount.toString(),
       name: file.name,
-      filePath: file.path,
+      file_path: file.path,
       length: file.length
     };
   });

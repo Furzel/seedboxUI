@@ -2,7 +2,8 @@ var _ = require('lodash');
 
 var routes = [
   'public',
-  'torrent'
+  'torrent',
+  'file'
 ];
 
 exports.mount = function (server) {

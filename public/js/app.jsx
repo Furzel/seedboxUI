@@ -1,101 +1,62 @@
-var Page = React.createClass({
-  handleAddTorrent: function (url) {
-    $.ajax({
-      url: '/torrent/add',
-      dataType: 'json',
-      type: 'POST',
-      data: {torrent_url: url},
-      success: function (torrent) {
-        var newTorrentList = this.state.torrents.push(torrent);
-        this.setState({torrents: newTorrentList});
-      }.bind(this),
-      error: function (xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
-  },
+// CONFIG
 
-  loadTorrentList: function () {
+var refreshDelay = 100000;
+
+// TORRENT FILE
+
+var TorrentFileList = React.createClass({
+  loadFiles: function () {
     $.ajax({
-      url: this.props.url,
+      url: '/torrent/' + this.props.torrent.key + '/files',
       dataType: 'json',
       type: 'GET',
       cache: false,
       success: function (data) {
-        this.setState({torrents: data});
+        this.setState({files: data});
       }.bind(this),
       error: function (xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error('loadFiles', status, err.toString());
       }.bind(this)
     });
   },
 
   getInitialState: function () {
-    return {torrents: []};
+    return {files: []};
   },
 
   componentDidMount: function () {
-    this.loadTorrentList();
-    setInterval(this.loadTorrentList, 100000);
+    this.loadFiles();
+    setInterval(this.loadFiles, refreshDelay);
   },
 
   render: function () {
+    var self = this;
+
+    var fileNodes = this.state.files.map(function (file) {
+      return (
+        <TorrentFile file={file} baseUrl={'/torrent/' + self.props.torrent.key + '/files'} />
+      );
+    });
+
     return (
-      <div className="container">
-        <Header onAddTorrent={this.handleAddTorrent}/>
-        <TorrentList data={this.state.torrents} />
+      <div className="fileList">
+        {fileNodes}
       </div>
     );
   }
 });
 
-var Header = React.createClass({
+var TorrentFile = React.createClass({
   render: function () {
     return (
-      <div className="header">
-        <div className="centerWrapper">
-
-          <div className="headerControls">
-            <div className="title"><h1>Seedbox UI</h1></div>
-            <AddTorrentForm onAddTorrent={this.props.onAddTorrent}/>
-          </div>
-
-          <TorrentToolbar />
-
-          <div className="listHeader">
-            <div className="col1">Name</div>
-            <div className="col2">Status</div>
-            <div className="col3">Progress</div>
-            <div className="col4">Actions</div>
-          </div>
-        </div>
+      <div className="fileRow">
+        <a href={this.props.baseUrl + '/' + this.props.file.id} >{this.props.file.name}</a>
       </div>
     );
   }
 });
 
-var AddTorrentForm = React.createClass({
-  handleSubmit: function (event) {
-    event.preventDefault();
-    var url = this.refs.torrent_url.getDOMNode().value.trim();
-
-    if (!url)
-      return;
-
-    this.props.onAddTorrent(url);
-
-    this.refs.torrent_urlgetDOMNode().value = '';
-  },
-
-  render: function () {
-    return (
-      <form className="addTorrentForm" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Torrent URL" ref="torrent_url" />
-        <button type="submit">Add a torrent</button>
-      </form>
-    );
-  }
-});
+// TORRENT
 
 var TorrentList = React.createClass({
   render: function () {
@@ -129,7 +90,8 @@ var TorrentToolbar = React.createClass({
 var Torrent = React.createClass({
   getInitialState: function () {
     return {
-      torrent: this.props.torrent
+      torrent: this.props.torrent,
+      expanded: false
     };
   },
 
@@ -137,13 +99,26 @@ var Torrent = React.createClass({
     this.setState({torrent: torrent});
   },
 
+  toggleExpand: function (event) {
+    event.preventDefault();
+
+    this.setState({expanded: !this.state.expanded});
+  },
+
+  displayFileList: function () {
+    return this.state.expanded ? (<TorrentFileList torrent={this.state.torrent} />) : null;
+  },
+
   render: function () {
     return (
-      <div className="row">
-        <div className="col1">{this.state.torrent.name}</div>
-        <div className="col2">{this.state.torrent.status}</div>
-        <TorrentProgress progress={Math.floor(this.state.torrent.progress)}/>
-        <TorrentActions torrent={this.state.torrent} updateTorrent={this.updateTorrent}/>
+      <div className="torrent">
+        <div className="row" onClick={this.toggleExpand}>
+          <div className="col1">{this.state.torrent.name}</div>
+          <div className="col2">{this.state.torrent.status}</div>
+          <TorrentProgress progress={Math.floor(this.state.torrent.progress)}/>
+          <TorrentActions torrent={this.state.torrent} updateTorrent={this.updateTorrent}/>
+        </div>
+        {this.displayFileList()}
       </div>
     );
   }
@@ -244,6 +219,107 @@ var TorrentActions = React.createClass({
       <div className="col4 torrentActions">
         {{actionNodes}}
       </div>
+    );
+  }
+});
+
+// APP
+
+var Page = React.createClass({
+  handleAddTorrent: function (url) {
+    $.ajax({
+      url: '/torrent/add',
+      dataType: 'json',
+      type: 'POST',
+      data: {torrent_url: url},
+      success: function (torrent) {
+        var newTorrentList = this.state.torrents.push(torrent);
+        this.setState({torrents: newTorrentList});
+      }.bind(this),
+      error: function (xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  loadTorrentList: function () {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      type: 'GET',
+      cache: false,
+      success: function (data) {
+        this.setState({torrents: data});
+      }.bind(this),
+      error: function (xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  getInitialState: function () {
+    return {torrents: []};
+  },
+
+  componentDidMount: function () {
+    this.loadTorrentList();
+    setInterval(this.loadTorrentList, refreshDelay);
+  },
+
+  render: function () {
+    return (
+      <div className="container">
+        <Header onAddTorrent={this.handleAddTorrent}/>
+        <TorrentList data={this.state.torrents} />
+      </div>
+    );
+  }
+});
+
+var Header = React.createClass({
+  render: function () {
+    return (
+      <div className="header">
+        <div className="centerWrapper">
+
+          <div className="headerControls">
+            <div className="title"><h1>Seedbox UI</h1></div>
+            <AddTorrentForm onAddTorrent={this.props.onAddTorrent}/>
+          </div>
+
+          <TorrentToolbar />
+
+          <div className="listHeader">
+            <div className="col1">Name</div>
+            <div className="col2">Status</div>
+            <div className="col3">Progress</div>
+            <div className="col4">Actions</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
+var AddTorrentForm = React.createClass({
+  handleSubmit: function (event) {
+    event.preventDefault();
+    var url = this.refs.torrent_url.getDOMNode().value.trim();
+
+    if (!url)
+      return;
+
+    this.props.onAddTorrent(url);
+
+    this.refs.torrent_urlgetDOMNode().value = '';
+  },
+
+  render: function () {
+    return (
+      <form className="addTorrentForm" onSubmit={this.handleSubmit}>
+        <input type="text" placeholder="Torrent URL" ref="torrent_url" />
+        <button type="submit">Add a torrent</button>
+      </form>
     );
   }
 });

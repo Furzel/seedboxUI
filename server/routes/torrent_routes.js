@@ -72,13 +72,11 @@ exports.mount = function (server) {
     handler: function (request, reply) {
       Torrent.fetch(request.params.torrent_key, function (err, torrent) {
         if (err) {
-          console.log('1', err);
           return reply(new Error(err.message));
         }
 
         torrent.restart(function (err) {
           if (err) {
-            console.log('2', err);
             return reply(new Error(err.message));
           }
 

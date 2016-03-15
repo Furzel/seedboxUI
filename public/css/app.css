@@ -2,40 +2,40 @@
  ## COLORS ##
   http://paletton.com/#uid=23p0u0krl6Ojfekn9aswk3HKY1j
 
-  header background #061B22
-  header borders #010E12
-  header shadow #000506
+  header background #717171
+  header borders #3A3939
+  header shadow #000000
 
   title #FFF
 
-  input hover background #1E3D47
-  input background #102B34
+  input hover background #9E9E9E
+  input background #272727
   input text #FFF
 
-  button background #010E12
-  button hover background #000506
-  button shadow #000506
+  button background #3A3939
+  button hover background #0A0A0A
+  button shadow #000
   button text #FFF
 
-  array background odd #1E3D47
-  array background even #1E3D47
+  array background odd #9E9E9E
+  array background even #9E9E9E
 
 */
 
 body {
   margin: 0px;
 
-  background-color: #1E3D47;
+  background-color: #9E9E9E;
 
   font-family: Helvetica;
 }
 
 a {
-  color: #72512D;
+  color: #272727;
 }
 
 a:hover {
-  color: #533617;
+  color: #000000;
 }
 
 .header {
@@ -57,10 +57,10 @@ a:hover {
 }
 
 .header .centerWrapper {
-  box-shadow: 0px 4px 5px #000506;
-  border: 1px solid #010E12;
+  box-shadow: 0px 4px 5px #0A0A0A;
+  border: 1px solid #3A3939;
 
-  background-color: #061B22;
+  background-color: #717171;
 }
 
 .torrentList .centerWrapper {
@@ -71,7 +71,7 @@ a:hover {
   height: 60px;
   position: relative;
 
-  background-color: #061B22;
+  background-color: #717171;
 
   border-bottom: 1px solid #61981C;
   border-right: 1px solid #61981C;
@@ -83,7 +83,7 @@ a:hover {
   height: 60px;
   position: relative;
 
-  border-bottom: 1px inset #010E12;
+  border-bottom: 1px inset #3A3939;
 }
 
 .title {
@@ -114,19 +114,19 @@ a:hover {
 }
 
 input {
-  background-color: #102B34;
-  border: 1px inset #010E12;
+  background-color: #272727;
+  border: 1px inset #3A3939;
 
   font-size: 1.2em;
 }
 
 input:hover {
-  background-color: #1E3D47;
+  background-color: #9E9E9E;
 }
 
 input:focus {
   outline: 0;
-  background-color: #1E3D47;
+  background-color: #9E9E9E;
 }
 
 ::-webkit-input-placeholder {
@@ -150,14 +150,14 @@ input:focus {
   width: 25%;
   height: 35px;
 
-  background-color: #010E12;
+  background-color: #3A3939;
   border: 0px;
-  box-shadow: 2px 2px 1px #000506;
+  box-shadow: 2px 2px 1px #0A0A0A;
   color: #FFF;
 }
 
 .addTorrentForm button:hover {
-  background-color: #000506;
+  background-color: #0A0A0A;
   cursor: pointer;
 }
 
@@ -165,7 +165,7 @@ input:focus {
   height: 60px;
   width: 100%;
 
-  border-bottom: 1px inset #010E12;
+  border-bottom: 1px inset #3A3939;
 }
 
 .torrentToolbar input {
@@ -203,7 +203,23 @@ input:focus {
   display: -webkit-flex;
     display: flex;
 
-  border: 1px ridge #102B34;
+  border: 1px ridge #272727;
+}
+
+.fileList {
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 1%;
+  padding-bottom: 1%;
+
+  background-color: #BFBFBF;
+}
+
+.fileRow {
+  height: 30px;
+
+  width: 100%;
+
 }
 
 .rowSeparator {
@@ -216,15 +232,15 @@ input:focus {
   left: 0;
   right: 0;
 
-  background-color: #102B34;
+  background-color: #272727;
 }
 
 .torrentList div .row:nth-child(odd) {
-  background-color: #1E3D47;
+  background-color: #9E9E9E;
 }
 
 .torrentList div .row:nth-child(even) {
-  background-color: #1E3D47;
+  background-color: #9E9E9E;
 }
 
 .col1 {
@@ -279,5 +295,5 @@ input:focus {
 }
 
 a span.fa {
-  text-shadow: 2px 2px 5px #000506;
+  text-shadow: 1px 1px 3px #000;
 }
