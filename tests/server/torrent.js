@@ -78,10 +78,11 @@ describe('Torrent', function () {
   });
 
   it('should create a new torrent from an URL', function (done) {
-    Torrent.createFromUrl('http://test.test.com', function (err, torrent) {
+    Torrent.createFromUrl('torrent_1', function (err, torrent) {
       should.not.exist(err);
 
-      torrent.getKey().should.equal('12346');
+      torrent.getKey().should.equal('123456');
+      torrent.getName().should.equal('Sun Tzu Art of war');
 
       done();
     });

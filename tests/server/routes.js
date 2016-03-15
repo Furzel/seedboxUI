@@ -29,12 +29,12 @@ describe('Routes', function () {
       var options = {
         method: 'POST',
         url: '/torrent/add',
-        payload: {torrent_url: 'http://random.url.com'}
+        payload: {torrent_url: 'torrent_1'}
       };
 
       server.inject(options, function (response) {
         response.statusCode.should.equal(200);
-        response.result.key.should.equal('12346');
+        response.result.key.should.equal('123456');
         response.result.status.should.equal('added');
 
         done();
@@ -44,7 +44,7 @@ describe('Routes', function () {
     it('should pause a torrent', function (done) {
       var options = {
         method: 'POST',
-        url: '/torrent/12346/pause'
+        url: '/torrent/123456/pause'
       };
 
       server.inject(options, function (response) {
@@ -58,7 +58,7 @@ describe('Routes', function () {
     it('should restart a torrent', function (done) {
       var options = {
         method: 'POST',
-        url: '/torrent/12346/restart'
+        url: '/torrent/123456/restart'
       };
 
       server.inject(options, function (response) {
@@ -80,6 +80,24 @@ describe('Routes', function () {
         response.result.should.have.length(1);   
 
         done();     
+      });
+    });
+  });
+
+  describe('File routes', function () {
+    it('should retrieve file list for a torrent', function (done) {
+      var options = {
+        method: 'GET', 
+        url: '/torrent/123456/files'
+      };
+
+      server.inject(options, function (response) {
+        response.statusCode.should.equal(200);
+
+        response.result.length.should.equal(1);
+        response.result[0].name.should.equal("Art of war.pdf");
+
+        done();
       });
     });
   });
