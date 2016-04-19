@@ -22,6 +22,10 @@ body {
   color: white;
 }
 
+.title {
+  padding-left: 10px;
+}
+
 .headerControls {
   position: absolute !important;
   top: 15px;
@@ -35,6 +39,7 @@ body {
 
 .main {
   height: 100%;
+  margin-top: 70px;
 }
 
 .leftBar {
@@ -103,4 +108,12 @@ body {
 .torrentFiles ul {
   padding-left: 5px;
   border-left: gray solid 1px;
+}
+
+
+
+
+
+.torrentDetails p {
+  font-size: large;
 }

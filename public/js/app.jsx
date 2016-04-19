@@ -46,7 +46,10 @@ var Page = React.createClass({
 
   changePage: function (pageData) {
     if (pageData.page === 'torrentDetails')
-      this.setState({page: 'torrentDetails'});
+      this.setState({
+        page: 'torrentDetails',
+        torrentKey: pageData.torrentKey
+      });
   },
 
   render: function () {
@@ -62,7 +65,7 @@ var Page = React.createClass({
 
       case 'torrentDetails': {
         currentPage = (<div className="main">
-                         <TorrentDetails />
+                         <TorrentDetails torrentKey={this.state.torrentKey} changePage={this.changePage}/>
                        </div>);
         break;
       }
@@ -91,6 +94,8 @@ var Header = React.createClass({
     this.props.onAddTorrent(url);
 
     this.refs.torrent_url.getDOMNode().value = '';
+
+    location.reload(true);
   },
 
   render: function () {
@@ -111,57 +116,6 @@ var Header = React.createClass({
   }
 });
 
-
-
-
-/* TORRENT FILE
-
-var TorrentFileList = React.createClass({
-  loadFiles: function () {
-    $.ajax({
-      url: '/torrent/' + this.props.torrent.key + '/files',
-      dataType: 'json',
-      type: 'GET',
-      cache: false,
-      success: function (data) {
-        this.setState({files: data});
-      }.bind(this),
-      error: function (xhr, status, err) {
-        console.error('loadFiles', status, err.toString());
-      }.bind(this)
-    });
-  },
-
-  getInitialState: function () {
-    return {files: []};
-  },
-
-  componentDidMount: function () {
-    this.loadFiles();
-    setInterval(this.loadFiles, refreshDelay);
-  },
-
-  render: function () {
-    var self = this;
-
-    var fileNodes = this.state.files.map(function (file) {
-      var url = '/torrent' + self.props.torrent.key + '/files/' + file.id; 
-      return (
-        <li>{file.name + '-' + file.size + '-'}<a href={url}>Download</a></li> 
-      );
-    });
-
-    return (
-      <tr className="torrentFiles">
-        <td colspan="8">
-          <ul className="list-unstyled">  
-            {fileNodes}
-          </ul>
-        </td>
-      </tr>
-    );
-  }
-});*/
 
 React.render(
   <Page url="/torrent/all" />,

@@ -1,4 +1,5 @@
 var Hapi = require('hapi'),
+    Path = require('path'),
     Joi = require('joi'),
     _ = require('lodash'),
     Torrent = require('../model/torrent');
@@ -34,6 +35,26 @@ exports.mount = function (server) {
 
         reply(_.invoke(torrents, 'toJSON'));
       });
+    }
+  });
+
+  server.route({
+    method: 'GET',
+    path: '/torrent/{torrent_key}',
+    handler: function (request, reply) {
+      Torrent.fetch(request.params.torrent_key, function (err, torrent) {
+        if (err)
+          return reply(new Error(err.message));
+
+        reply(torrent.toFullJSON());
+      });
+    },
+    config: {
+      validate: {
+        params: {
+          torrent_key: Joi.string().required()
+        }
+      }
     }
   });
 

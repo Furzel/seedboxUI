@@ -123,7 +123,7 @@ var Torrent = React.createClass({
         <td>TODO</td>
         <td>{Math.floor(this.state.torrent.progress)}%</td>
         <td>{this.state.torrent.status}</td>
-        <td><TorrentActions torrent={this.state.torrent} updateTorrent={this.updateTorrent}/></td>
+        <td><TorrentActions torrent={this.state.torrent} updateTorrent={this.updateTorrent} displayType="glyph"/></td>
       </tr>
     );
   }

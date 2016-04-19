@@ -61,6 +61,15 @@ var create = exports.create = function (attributes) {
       };
     },
 
+    toFullJSON: function () {
+      var json = this.toJSON();
+      _.assign(json, {
+        files: _.invoke(this.getFiles(), 'toJSON')
+      });
+
+      return json;
+    },
+
     getKey: function () {
       return key;
     },
@@ -95,7 +104,6 @@ var create = exports.create = function (attributes) {
     },
 
     getFileById: function (id) {
-      debugger;
       return _.find(files, function (file) {
         return file.getId() === id;
       });

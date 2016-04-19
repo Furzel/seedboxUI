@@ -37,7 +37,8 @@ exports.create = function (attributes) {
     toJSON: function () {
       return {
         id: id,
-        name: name
+        name: name,
+        length: length
       };
     }
   };
