@@ -25,6 +25,10 @@ exports.create = function (attributes) {
       return path.join(config.download_path, filePath);
     },
 
+    getUrl: function (torrent) {
+      return torrent.getUrl() + '/files/' + this.getId();
+    },
+
     toDatabase: function () {
       return {
         id: id,
@@ -34,11 +38,12 @@ exports.create = function (attributes) {
       };
     },
 
-    toJSON: function () {
+    toJSON: function (torrent) {
       return {
         id: id,
         name: name,
-        length: length
+        length: length,
+        url: this.getUrl(torrent)
       };
     }
   };

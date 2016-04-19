@@ -1,7 +1,7 @@
 var TorrentDetails = React.createClass({
-  loadTorrent: function (torrentKey) {
+  loadTorrent: function (torrentUrl) {
     $.ajax({
-      url: '/torrent/' + torrentKey,
+      url: torrentUrl,
       dataType: 'json',
       type: 'GET',
       cache: false,
@@ -10,7 +10,7 @@ var TorrentDetails = React.createClass({
         this.setState({torrent: data});
       }.bind(this),
       error: function (xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error(this.props.torrentUrl, status, err.toString());
       }.bind(this)
     });
   },
@@ -22,7 +22,7 @@ var TorrentDetails = React.createClass({
   },
 
   componentDidMount: function () {
-    this.loadTorrent(this.props.torrentKey);
+    this.loadTorrent(this.props.torrentUrl);
   },
 
   updateTorrent: function (torrent) {
@@ -121,7 +121,7 @@ var TorrentFile = React.createClass({
     <tr className="torrentFile">
       <td>{this.props.file.name}</td>
       <td>{this.beautifySize()}</td>
-      <td><a href="#">Download</a></td>
+      <td><a href={this.props.file.url}>Download</a></td>
     </tr>
     );
   }

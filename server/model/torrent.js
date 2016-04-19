@@ -57,14 +57,19 @@ var create = exports.create = function (attributes) {
         key: key,
         name: name,
         status: this.getStatus(),
-        progress: this.getProgress()
+        progress: this.getProgress(),
+        url: this.getUrl()
       };
     },
 
     toFullJSON: function () {
-      var json = this.toJSON();
+      var self = this,
+          json = self.toJSON();
+
       _.assign(json, {
-        files: _.invoke(this.getFiles(), 'toJSON')
+        files: _.map(self.getFiles(), function (file) {
+          return file.toJSON(self);
+        })
       });
 
       return json;
@@ -74,8 +79,12 @@ var create = exports.create = function (attributes) {
       return key;
     },
 
-    getUrl: function () {
+    getTorrentUrl: function () {
       return url;
+    },
+
+    getUrl: function () {
+      return '/torrent/' + this.getKey();
     },
 
     getName: function () {

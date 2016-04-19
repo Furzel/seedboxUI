@@ -50,7 +50,7 @@ var restartTorrent = exports.restartTorrent = function (torrent, done) {
     if (err)
       return done(err);
 
-    var engine = torrentStream(torrent.getUrl(), torrentConfig);
+    var engine = torrentStream(torrent.getTorrentUrl(), torrentConfig);
 
     torrent.resetProgress();
 

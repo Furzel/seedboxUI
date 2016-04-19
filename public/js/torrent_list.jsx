@@ -110,7 +110,7 @@ var Torrent = React.createClass({
   openTorrentDetails: function (event) {
     event.preventDefault();
 
-    this.props.changePage({page: 'torrentDetails', torrentKey: this.state.torrent.key})
+    this.props.changePage({page: 'torrentDetails', torrent: this.state.torrent})
   },
 
   render: function () {

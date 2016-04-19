@@ -48,7 +48,7 @@ var Page = React.createClass({
     if (pageData.page === 'torrentDetails')
       this.setState({
         page: 'torrentDetails',
-        torrentKey: pageData.torrentKey
+        torrent: pageData.torrent
       });
 
     if (pageData.page === 'torrentList')
@@ -70,7 +70,7 @@ var Page = React.createClass({
 
       case 'torrentDetails': {
         currentPage = (<div className="main">
-                         <TorrentDetails torrentKey={this.state.torrentKey} changePage={this.changePage}/>
+                         <TorrentDetails torrentUrl={this.state.torrent.url} changePage={this.changePage}/>
                        </div>);
         break;
       }
