@@ -50,6 +50,11 @@ var Page = React.createClass({
         page: 'torrentDetails',
         torrentKey: pageData.torrentKey
       });
+
+    if (pageData.page === 'torrentList')
+      this.setState({
+        page: 'torrentList'
+      });
   },
 
   render: function () {

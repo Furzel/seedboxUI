@@ -25,17 +25,23 @@ var TorrentDetails = React.createClass({
     this.loadTorrent(this.props.torrentKey);
   },
 
+  updateTorrent: function (torrent) {
+    this.setState({torrent: torrent});
+  },
+
   render: function () {
     console.log('render');
     if (!this.state.torrent)
       return (
         <div className="loading">
+          <BackButton changePage={this.props.changePage}/>
           <h1>LOADING</h1>
         </div>
       );
 
     return (
       <div className="torrentDetails container">
+        <BackButton changePage={this.props.changePage}/>
         <div className="col-md-10 col-md-offset-1">
           <h1>{this.state.torrent.name}</h1>
           <p>Started: TODO</p>
@@ -45,6 +51,22 @@ var TorrentDetails = React.createClass({
           <h2>{this.state.torrent.files.length} files</h2>
           <TorrentFileList files={this.state.torrent.files}/>
         </div>
+      </div>
+    );
+  }
+});
+
+var BackButton = React.createClass({
+  goBack: function () {
+    this.props.changePage({
+      page: 'torrentList'
+    });
+  },
+
+  render: function () {
+    return (
+      <div className="backButton" onClick={this.goBack}>
+        <p><span className="glyphicon glyphicon-arrow-left"></span>Back</p> 
       </div>
     );
   }

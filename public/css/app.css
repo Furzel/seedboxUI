@@ -111,8 +111,29 @@ body {
 }
 
 
+.torrentActionTrigger {
+  margin-right: 5px; 
+}
 
 
+.backButton {
+  position: absolute;
+
+  top: 80px;
+  left: 10px;
+
+  color: black;
+  font-size: large;
+}
+
+.backButton:hover {
+  color: gray;
+  cursor: pointer;
+}
+
+.backButton span {
+  margin-right: 5px;
+}
 
 .torrentDetails p {
   font-size: large;
